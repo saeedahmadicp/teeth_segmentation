@@ -7,7 +7,7 @@ import numpy as np
 
 
 from utils import get_loaders, check_accuracy,  train_fn, plot_graph, check_test_accuracy
-
+from focal_loss import FocalLoss
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
