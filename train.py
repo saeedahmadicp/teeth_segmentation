@@ -69,7 +69,7 @@ def main():
     model = UNET(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     loss_fn = nn.BCEWithLogitsLoss()
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE, weight_decay=1e-7)
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
     print("Training started ::: **************** ")
     for epoch in range(NUM_EPOCHS):
