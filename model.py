@@ -102,9 +102,14 @@ class InceptionBlock(nn.Module):
             nn.ReLU(inplace=True)
         )
 
+        #self.upConv = nn.ConvTranspose2d(out_channels*4, out_channels*4, kernel_size=2, stride=2)
+
     def forward(self, x):
-        outputs = [self.double_conv1(x), self.double_conv2(x), self.double_conv3(x), self.double_conv4(x)]
-        return torch.cat(outputs, dim=1)
+    
+        concat = [self.double_conv1(x), self.double_conv2(x), self.double_conv3(x), self.double_conv4(x)]
+        output = torch.cat(concat, dim=1)
+
+        return output#self.upConv(output)
 
 
 class UNET(nn.Module):
@@ -237,6 +242,107 @@ class Attention_UNET(nn.Module):
 
             #passing the concatenated ouptut, to the double convolutional layers
             x = self.ups[idx+2](concat_skip)
+
+        return self.final_conv(x)
+
+
+
+class Inception_UNET(nn.Module):
+    def __init__(
+            self, in_channels=3, out_channels=1, features=[64, 128, 256, 512],
+    ):
+        super(Inception_UNET, self).__init__()
+        #module list for encoder layers
+        self.downs = nn.ModuleList()
+        #max pooling
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        #module list for the decoder layers
+        self.ups = nn.ModuleList()
+
+        #module list for inpception blocks
+        self.inception_blocks = nn.ModuleList()
+
+        #up convolution for inception block
+        self.ups_inception_block = nn.ModuleList()
+
+
+        #inception blocks
+        for index in  range(0, len(features)):
+            if features[index] == features[-1]:
+                out_ch = features[index]//4
+            else:
+                out_ch = features[index+1]//4
+            self.inception_blocks.append(InceptionBlock(features[index], out_ch))
+            self.ups_inception_block.append(nn.ConvTranspose2d(out_ch*4, out_ch*4, kernel_size=2, stride=2))
+
+
+        # Down part of UNET
+        for feature in features:
+            self.downs.append(DoubleConv(in_channels, feature))
+            in_channels = feature
+
+        # Up part of UNET
+        for feature, feature2 in zip(reversed(features), [1536,1024, 512, 256]):
+            ### up convolution
+            self.ups.append(
+                nn.ConvTranspose2d(
+                    feature*2, feature, kernel_size=2, stride=2,
+                )
+            )
+
+            ### double convolution
+            self.ups.append(DoubleConv(feature2, feature))
+
+            
+
+        self.bottleneck = DoubleConv(features[-1], features[-1]*2)
+        self.final_conv = nn.Conv2d(features[0], out_channels, kernel_size=1)
+
+       
+
+    def forward(self, x):
+        skip_connections = []
+
+        for down in self.downs:
+            x = down(x)
+            skip_connections.append(x)
+            x = self.pool(x)
+
+        x = self.bottleneck(x)
+        
+
+        #inception blocks
+        output_blocks = []
+        for index in range(0, len(self.inception_blocks)):
+            if index == 0:
+                block = skip_connections[0]
+            
+            block = self.inception_blocks[index](block)
+            output_blocks.append(block)
+
+        #up convolution for the inception block
+        up_convolved_block = []
+        for index, upconv in enumerate(self.ups_inception_block):
+            up_convolved_block.append(upconv(output_blocks[index]))
+
+
+        #reversing the list of the skip connections
+        skip_connections = skip_connections[::-1]
+
+        for idx in range(0, len(self.ups), 2):
+            x = self.ups[idx](x)
+            skip_connection = skip_connections[idx//2]
+            
+            #if the resolution of the input image is not completely devisible, then it will skip the reminder
+            # and the resolution will not be equal in this case, so we are resizing it incase in they are not equal
+            if x.shape != skip_connection.shape:
+                x = TF.resize(x, size=skip_connection.shape[2:])
+
+
+            concat_skip = torch.cat((skip_connection,up_convolved_block[(-(idx//2 + 1))], x), dim=1)
+
+            #passing the concatenated ouptut, to the double convolutional layers
+            x = self.ups[idx+1](concat_skip)
 
         return self.final_conv(x)
 
