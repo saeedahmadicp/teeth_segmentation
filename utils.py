@@ -2,7 +2,7 @@ import torch
 from dataset import Teeth_Dataset
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
-
+import numpy as np
 
 
 def get_loaders(
@@ -172,4 +172,97 @@ def check_test_accuracy(loader, model, device="cuda"):
         print(f"Dice score: {dice_score :.2f}")
 
 
+
+def Fit(model, train_dl, test_dl, loss_fn, optimizer, epochs, device):
+    train_accuracies = []
+    validation_accuracies = []
+    train_dice_scores = []
+    validation_dice_scores = []
+    train_losses = []
+    epochs_list = np.arange(0, epochs, 1).tolist()
+
+        
+    print("Training started ::: **************** ")
+    for epoch in range(epochs):
+        print("\nEpoch: ", epoch)
+        train_loss = train_fn(
+            loader=train_dl,
+            model=model,
+            optimizer=optimizer,
+            loss_fn=loss_fn,
+            device=device,
+        )
+
+        ## Training accuracy
+        train_accuracy, train_ds = check_accuracy(
+            loader=train_dl,
+            model=model,
+            device=device,
+            validation= False,
+        )
+
+        ## Validation accuracy
+        validation_accuracy, validation_ds = check_accuracy(
+            loader=train_dl,
+            model=model,
+            device=device,
+            validation= True,
+        )
+        
+        train_accuracies.append(train_accuracy)
+        validation_accuracies.append(validation_accuracy)
+
+        train_dice_scores.append(train_ds)
+        validation_dice_scores.append(validation_ds)
+
+        train_losses.append(train_loss)
+
+
     
+    print("Done")
+
+    check_test_accuracy(
+        loader= test_dl,
+        model=model,
+        device=device,
+    )
+
+    plot_graph(
+        x=epochs_list,
+        y=train_losses,
+        x_label= "No. of Epochs",
+        y_label= "Train Losses",
+        title= "Training losses vs no. of epochs",
+    )
+
+    plot_graph(
+        x=epochs_list,
+        y=train_accuracies,
+        x_label= "No. of Epochs",
+        y_label= "Train Accuracies",
+        title= "Training accuracies vs no. of epochs",
+    )
+
+    plot_graph(
+        x=epochs_list,
+        y= train_dice_scores,
+        x_label= "No. of Epochs",
+        y_label= "Training dice scores",
+        title= "Training dice scores vs no. of epochs",
+    )
+
+    plot_graph(
+        x=epochs_list,
+        y= validation_accuracies,
+        x_label= "No. of Epochs",
+        y_label= "validation dice scores",
+        title= "validation accuracies vs no. of epochs",
+    )
+
+    plot_graph(
+        x=epochs_list,
+        y= validation_dice_scores,
+        x_label= "No. of Epochs",
+        y_label= "validation dice scores",
+        title="validation dice scores vs no. of epochs",
+    )

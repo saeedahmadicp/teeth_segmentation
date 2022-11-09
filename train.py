@@ -6,7 +6,7 @@ from model import UNET
 import numpy as np
 
 
-from utils import get_loaders, check_accuracy,  train_fn, plot_graph, check_test_accuracy
+from utils import get_loaders, Fit
 from focal_loss import FocalLoss
 
 import os
@@ -24,14 +24,11 @@ TEST_IMG_DIR = "./test/test2018/"
 TEST_MASK_DIR = "./test/mask/"
 
 
+
+
 def main():
 
-    train_accuracies = []
-    validation_accuracies = []
-    train_dice_scores = []
-    validation_dice_scores = []
-    train_losses = []
-    epochs = np.arange(0, NUM_EPOCHS, 1).tolist()
+    
 
     train_images_transform = t.Compose(
         [
@@ -71,86 +68,9 @@ def main():
     loss_fn = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
-    print("Training started ::: **************** ")
-    for epoch in range(NUM_EPOCHS):
-        print("\nEpoch: ", epoch)
-        train_loss = train_fn(
-            loader=train_dl,
-            model=model,
-            optimizer=optimizer,
-            loss_fn=loss_fn,
-            device=DEVICE,
-        )
-        ## Training accuracy
-        train_accuracy, train_ds = check_accuracy(
-            loader=train_dl,
-            model=model,
-            device=DEVICE,
-            validation= False,
-        )
-
-        ## Validation accuracy
-        validation_accuracy, validation_ds = check_accuracy(
-            loader=train_dl,
-            model=model,
-            device=DEVICE,
-            validation= True,
-        )
-        
-        train_accuracies.append(train_accuracy)
-        validation_accuracies.append(validation_accuracy)
-
-        train_dice_scores.append(train_ds)
-        validation_dice_scores.append(validation_ds)
-
-        train_losses.append(train_loss)
-
-
+    Fit(model=model,train_dl=train_dl, test_dl=test_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE)
     
     print("Done")
-
-    check_test_accuracy(
-        loader= test_dl,
-        model=model,
-        device=DEVICE,
-    )
-
-    plot_graph(
-            x=epochs,
-            y=train_losses,
-            x_label= "No. of Epochs",
-            y_label= "Train Losses",
-            title= "Training losses vs no. of epochs",
-        )
-
-    plot_graph(
-            x=epochs,
-            y=train_accuracies,
-            x_label= "No. of Epochs",
-            y_label= "Train Accuracies",
-            title= "Training accuracies vs no. of epochs",
-        )
-    plot_graph(
-            x=epochs,
-            y= train_dice_scores,
-            x_label= "No. of Epochs",
-            y_label= "Training dice scores",
-            title= "Training dice scores vs no. of epochs",
-        )
-    plot_graph(
-            x=epochs,
-            y= validation_accuracies,
-            x_label= "No. of Epochs",
-            y_label= "validation dice scores",
-            title= "validation accuracies vs no. of epochs",
-        )
-    plot_graph(
-            x=epochs,
-            y= validation_dice_scores,
-            x_label= "No. of Epochs",
-            y_label= "validation dice scores",
-            title="validation dice scores vs no. of epochs",
-        )
 
 if __name__ == "__main__":
     main()
