@@ -57,6 +57,55 @@ class Attention_block(nn.Module):
 
 
 
+class InceptionBlock(nn.Module):
+ 
+    def __init__(self, in_channels, out_channels, mid_channels=None):
+        super(InceptionBlock, self).__init__()
+
+        if not mid_channels:
+            mid_channels = out_channels
+        
+        self.double_conv1 = nn.Sequential(
+            nn.MaxPool2d(2),
+            nn.Conv2d(in_channels, mid_channels, kernel_size=3, padding=1),
+            nn.BatchNorm2d(mid_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(mid_channels, out_channels, kernel_size=3, padding=1),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True)
+        )
+
+        self.double_conv2 = nn.Sequential(
+            nn.MaxPool2d(2),
+            nn.Conv2d(in_channels, mid_channels, kernel_size=5, padding=2),
+            nn.BatchNorm2d(mid_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(mid_channels, out_channels, kernel_size=5, padding=2),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True)
+        )
+
+        self.double_conv3 = nn.Sequential(
+            nn.MaxPool2d(2),
+            nn.Conv2d(in_channels, mid_channels, kernel_size=1, padding=0),
+            nn.BatchNorm2d(mid_channels),
+            nn.ReLU(inplace=True),
+        )
+
+        self.double_conv4 = nn.Sequential(
+            nn.MaxPool2d(2),
+            nn.Conv2d(in_channels, mid_channels, kernel_size=3, padding=1),
+            nn.BatchNorm2d(mid_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(mid_channels, out_channels, kernel_size=1, padding=0),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True)
+        )
+
+    def forward(self, x):
+        outputs = [self.double_conv1(x), self.double_conv2(x), self.double_conv3(x), self.double_conv4(x)]
+        return torch.cat(outputs, dim=1)
+
 
 class UNET(nn.Module):
     def __init__(

@@ -63,17 +63,20 @@ def main():
         test_masks_transform= test_masks_transform,
     )
 
+    loss_fn = nn.BCEWithLogitsLoss()
+    
+    """
     print("Simple Unet")
     model = UNET(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
-    loss_fn = nn.BCEWithLogitsLoss()
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
     Fit(model=model,train_dl=train_dl, test_dl=test_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE)
-    
+    """
     print("Attention U-Net")
     model = Attention_UNET(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
     Fit(model=model,train_dl=train_dl, test_dl=test_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE)
 
 
