@@ -56,6 +56,8 @@ class Attention_block(nn.Module):
         return x*psi
 
 
+
+
 class UNET(nn.Module):
     def __init__(
             self, in_channels=3, out_channels=1, features=[64, 128, 256, 512],
@@ -123,7 +125,7 @@ class Attention_UNET(nn.Module):
     def __init__(
             self, in_channels=3, out_channels=1, features=[64, 128, 256, 512],
     ):
-        super(UNET, self).__init__()
+        super(Attention_UNET, self).__init__()
         #module list for encoder layers
         self.downs = nn.ModuleList()
         #max pooling

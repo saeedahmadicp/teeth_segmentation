@@ -2,11 +2,11 @@ import torch
 from torchvision import transforms as t
 import torch.nn as nn
 import torch.optim as optim
-from model import UNET
 import numpy as np
 
 
 from utils import get_loaders, Fit
+from model import UNET, Attention_UNET
 from focal_loss import FocalLoss
 
 import os
@@ -63,6 +63,7 @@ def main():
         test_masks_transform= test_masks_transform,
     )
 
+    print("Simple Unet")
     model = UNET(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     loss_fn = nn.BCEWithLogitsLoss()
@@ -70,7 +71,13 @@ def main():
 
     Fit(model=model,train_dl=train_dl, test_dl=test_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE)
     
-    print("Done")
+    print("Attention U-Net")
+    model = Attention_UNET(in_channels=3, out_channels=1)
+    model.to(device=DEVICE)
+    Fit(model=model,train_dl=train_dl, test_dl=test_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE)
+
+
+
 
 if __name__ == "__main__":
     main()
