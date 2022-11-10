@@ -8,15 +8,15 @@ import numpy as np
 from utils import get_loaders, Fit
 from model import UNET, Attention_UNET, Inception_UNET, Inception_Attention_UNET, ResUNET, ResUNETPlus
 #from focal_loss import FocalLoss
-
 from lookahead import Lookahead
+from dense_unet import DenseUNet
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
-LEARNING_RATE = 1e-5
+LEARNING_RATE = 1e-4
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
-BATCH_SIZE = 16
+BATCH_SIZE = 4
 NUM_EPOCHS = 30
 IMAGE_HEIGHT = 256 # 1127 originally
 IMAGE_WIDTH = 256 # 1991 originally
@@ -70,10 +70,10 @@ def main():
 
     
     print("Deep Residual UNET")
-    model = ResUNETPlus(in_channels=3, out_channels=1)
+    model = ResUNET(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
-    lookahead = Lookahead(optimizer, k=5, alpha=0.5) 
+    #lookahead = Lookahead(optimizer, k=3, alpha=0.6) 
     Fit(model=model,train_dl=train_dl, test_dl=test_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE)
 
 
