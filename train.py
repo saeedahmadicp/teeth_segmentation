@@ -6,8 +6,10 @@ import numpy as np
 
 
 from utils import get_loaders, Fit
-from model import UNET, Attention_UNET, Inception_UNET
+from model import UNET, Attention_UNET, Inception_UNET, Inception_Attention_UNET, ResUNET
 from focal_loss import FocalLoss
+
+from lookahead import Lookahead
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
@@ -65,24 +67,12 @@ def main():
 
     loss_fn = nn.BCEWithLogitsLoss()
 
-    """
-    print("Simple Unet")
-    model = UNET(in_channels=3, out_channels=1)
-    model.to(device=DEVICE)
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-
-    Fit(model=model,train_dl=train_dl, test_dl=test_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE)
     
-    print("Attention U-Net")
-    model = Attention_UNET(in_channels=3, out_channels=1)
+    print("Deep Residual UNET")
+    model = ResUNET(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
-    Fit(model=model,train_dl=train_dl, test_dl=test_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE)
-    """
-    print("Inception U-Net")
-    model = Inception_UNET(in_channels=3, out_channels=1)
-    model.to(device=DEVICE)
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
+    #lookahead = Lookahead(optimizer, k=8, alpha=0.2) 
     Fit(model=model,train_dl=train_dl, test_dl=test_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE)
 
 
