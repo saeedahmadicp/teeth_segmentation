@@ -14,7 +14,7 @@ from lookahead import Lookahead
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
-LEARNING_RATE = 1e-4
+LEARNING_RATE = 1e-5
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 16
 NUM_EPOCHS = 30
@@ -73,7 +73,7 @@ def main():
     model = ResUNETPlus(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
-    #lookahead = Lookahead(optimizer, k=8, alpha=0.2) 
+    lookahead = Lookahead(optimizer, k=5, alpha=0.5) 
     Fit(model=model,train_dl=train_dl, test_dl=test_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE)
 
 
