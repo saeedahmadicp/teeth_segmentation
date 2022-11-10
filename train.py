@@ -6,7 +6,7 @@ import numpy as np
 
 
 from utils import get_loaders, Fit
-from model import UNET, Attention_UNET, Inception_UNET, Inception_Attention_UNET, ResUNET, ResUNETPlus, ResUNET_with_GN
+from model import UNET, Attention_UNET, Inception_UNET, Inception_Attention_UNET, ResUNET, ResUNETPlus, ResUNET_with_GN, ResUNET_with_CBAM
 #from focal_loss import FocalLoss
 from lookahead import Lookahead
 from dense_unet import DenseUNet
@@ -70,8 +70,8 @@ def main():
     #loss_fn = FocalLoss()
 
     
-    print("Deep Residual UNET with GN")
-    model = ResUNET_with_GN(in_channels=3, out_channels=1)
+    print("Deep Residual UNET with CBAM")
+    model = ResUNET_with_CBAM(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
     #lookahead = Lookahead(optimizer, k=3, alpha=0.6) 
