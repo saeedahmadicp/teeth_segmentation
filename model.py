@@ -488,6 +488,71 @@ class ResUNETPlus(nn.Module):
 
 
 
+
+class ResUNET_with_GN(nn.Module):
+    def __init__(self, in_channels=3, out_channels=1, filters=[64, 128, 256, 512]):
+        super(ResUNET_with_GN, self).__init__()
+
+        ## input and encoder blocks
+        self.input_layer = nn.Sequential(
+            nn.Conv2d(in_channels, filters[0], kernel_size=3, padding=1),
+            nn.GroupNorm(num_groups=filters[0]//8,num_channels=filters[0]),
+            nn.ReLU(),
+            nn.Conv2d(filters[0], filters[0], kernel_size=3, padding=1),
+        )
+        self.input_skip = nn.Sequential(
+            nn.Conv2d(in_channels, filters[0], kernel_size=3, padding=1)
+        )
+
+        self.residual_conv_1 = ResNetBlock(filters[0], filters[1], stride=2, padding=1)
+        self.residual_conv_2 = ResNetBlock(filters[1], filters[2], stride=2, padding=1)
+
+
+        ## bridge
+        self.bridge = ResNetBlock(filters[2], filters[3], stride=2, padding=1)
+
+        ## decoder blocks
+        self.upsample_1 = nn.ConvTranspose2d(filters[3],filters[3], kernel_size=2, stride=2)
+        self.up_residual_conv_1 = ResNetBlock(filters[3]+filters[2],filters[2], stride=1, padding=1)
+
+        self.upsample_2 = nn.ConvTranspose2d(filters[2],filters[2], kernel_size=2, stride=2)
+        self.up_residual_conv_2 = ResNetBlock(filters[2]+filters[1],filters[1], stride=1, padding=1)
+
+        self.upsample_3 = nn.ConvTranspose2d(filters[1],filters[1], kernel_size=2, stride=2)
+        self.up_residual_conv_3 = ResNetBlock(filters[1]+filters[0],filters[0], stride=1, padding=1)
+
+        ## output layer
+        self.output_layer = nn.Conv2d(filters[0], out_channels, kernel_size=1, stride=1,)
+
+    def forward(self, x):
+        
+        ## Encoder 
+        x1 = self.input_layer(x) + self.input_skip(x)
+        x2 = self.residual_conv_1(x1)
+        x3 = self.residual_conv_2(x2)
+
+        ## Bridge
+        x4 = self.bridge(x3)
+
+        ## Decoder
+        x4 = self.upsample_1(x4)
+        x5 = torch.cat([x4, x3], dim=1)
+        x6 = self.up_residual_conv_1(x5)
+
+        x6 = self.upsample_2(x6)
+        x7 = torch.cat([x6, x2], dim=1)
+        x8 = self.up_residual_conv_2(x7)
+
+        x8 = self.upsample_3(x8)
+        x9 = torch.cat([x8, x1], dim=1)
+        x10 = self.up_residual_conv_3(x9)
+
+        output = self.output_layer(x10)
+
+        return output
+
+
+
 def test():
     x = torch.randn((3, 1, 160, 160))
     
