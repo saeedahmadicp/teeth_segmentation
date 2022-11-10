@@ -113,6 +113,7 @@ def check_accuracy(loader, model, device="cuda", validation=True):
     
 def train_fn(loader, model, optimizer, loss_fn, device):
     mean_loss = 0
+   
     for batch_idx, (data, targets) in enumerate(loader):
         if batch_idx <= 14:
             data = data.to(device=device)

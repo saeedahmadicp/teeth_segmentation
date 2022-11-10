@@ -512,7 +512,7 @@ class ResUNET(nn.Module):
         self.up_residual_conv_3 = ResNetBlock(filters[1]+filters[0],filters[0], stride=1, padding=1)
 
         ## output layer
-        self.output_layer = nn.Conv2d(filters[0], 1, kernel_size=1, stride=1,)
+        self.output_layer = nn.Conv2d(filters[0], out_channels, kernel_size=1, stride=1,)
 
     def forward(self, x):
         
@@ -542,14 +542,86 @@ class ResUNET(nn.Module):
         return output
 
 
+class ResUNETPlus(nn.Module):
+    def __init__(self, in_channels=3, out_channels=1, filters=[64, 128, 256, 512, 1024]):
+        super(ResUNETPlus, self).__init__()
 
+        ## input and encoder blocks
+        self.input_layer = nn.Sequential(
+            nn.Conv2d(in_channels, filters[0], kernel_size=3, padding=1),
+            nn.BatchNorm2d(filters[0]),
+            nn.ReLU(),
+            nn.Conv2d(filters[0], filters[0], kernel_size=3, padding=1),
+        )
+        self.input_skip = nn.Sequential(
+            nn.Conv2d(in_channels, filters[0], kernel_size=3, padding=1)
+        )
+
+        self.residual_conv_1 = ResNetBlock(filters[0], filters[1], stride=2, padding=1)
+        self.residual_conv_2 = ResNetBlock(filters[1], filters[2], stride=2, padding=1)
+        self.residual_conv_3 = ResNetBlock(filters[2], filters[3], stride=2, padding=1)
+
+
+        ## bridge
+        self.bridge = ResNetBlock(filters[3], filters[4], stride=2, padding=1)
+
+        ## decoder blocks
+        self.upsample_1 = nn.ConvTranspose2d(filters[4],filters[4], kernel_size=2, stride=2)
+        self.up_residual_conv_1 = ResNetBlock(filters[4]+filters[3],filters[3], stride=1, padding=1)
+
+        self.upsample_2 = nn.ConvTranspose2d(filters[3],filters[3], kernel_size=2, stride=2)
+        self.up_residual_conv_2 = ResNetBlock(filters[3]+filters[2],filters[2], stride=1, padding=1)
+
+        self.upsample_3 = nn.ConvTranspose2d(filters[2],filters[2], kernel_size=2, stride=2)
+        self.up_residual_conv_3 = ResNetBlock(filters[2]+filters[1],filters[1], stride=1, padding=1)
+
+        self.upsample_4 = nn.ConvTranspose2d(filters[1],filters[1], kernel_size=2, stride=2)
+        self.up_residual_conv_4 = ResNetBlock(filters[1]+filters[0],filters[0], stride=1, padding=1)
+
+        ## output layer
+        self.output_layer = nn.Sequential(
+            nn.Conv2d(filters[0], out_channels, kernel_size=1, stride=1,),
+            #nn.Sigmoid(),
+        )
+
+    def forward(self, x):
+        
+        ## Encoder 
+        x1 = self.input_layer(x) + self.input_skip(x)
+        x2 = self.residual_conv_1(x1)
+        x3 = self.residual_conv_2(x2)
+        x4 = self.residual_conv_3(x3)
+
+        ## Bridge
+        x5 = self.bridge(x4)
+
+        ## Decoder
+        x5 = self.upsample_1(x5)
+        x6 = torch.cat([x5, x4], dim=1)
+        x7 = self.up_residual_conv_1(x6)
+
+        x7 = self.upsample_2(x7)
+        x8 = torch.cat([x7, x3], dim=1)
+        x9 = self.up_residual_conv_2(x8)
+
+        x9 = self.upsample_3(x9)
+        x10 = torch.cat([x9, x2], dim=1)
+        x11 = self.up_residual_conv_3(x10)
+
+        x11 = self.upsample_4(x11)
+        x12 = torch.cat([x11, x1], dim=1)
+        x13 = self.up_residual_conv_4(x12)
+
+        output = self.output_layer(x13)
+
+        return output
 
 
 
 def test():
     x = torch.randn((3, 1, 160, 160))
     
-    model = ResUNET(in_channels=1, out_channels=1)
+    model = ResUNETPlus(in_channels=1, out_channels=1)
     print(model)
     preds = model(x)
     print(preds.shape,   x.shape)

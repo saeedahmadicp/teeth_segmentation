@@ -6,8 +6,8 @@ import numpy as np
 
 
 from utils import get_loaders, Fit
-from model import UNET, Attention_UNET, Inception_UNET, Inception_Attention_UNET, ResUNET
-from focal_loss import FocalLoss
+from model import UNET, Attention_UNET, Inception_UNET, Inception_Attention_UNET, ResUNET, ResUNETPlus
+#from focal_loss import FocalLoss
 
 from lookahead import Lookahead
 
@@ -66,10 +66,11 @@ def main():
     )
 
     loss_fn = nn.BCEWithLogitsLoss()
+    #loss_fn = FocalLoss()
 
     
     print("Deep Residual UNET")
-    model = ResUNET(in_channels=3, out_channels=1)
+    model = ResUNETPlus(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
     #lookahead = Lookahead(optimizer, k=8, alpha=0.2) 
