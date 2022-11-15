@@ -80,9 +80,9 @@ def main():
     #loss_fn = FocalLoss()
 
     
-    print("Residual UNET")
-    writer = SummaryWriter("runs/AttentionUnet")
-    model = Attention_UNET(in_channels=3, out_channels=1)
+    print("UNET_dropout")
+    writer = SummaryWriter("runs/UNET_dropout")
+    model = UNET(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
     #lookahead = Lookahead(optimizer, k=3, alpha=0.6) 

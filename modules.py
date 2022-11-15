@@ -139,11 +139,13 @@ class ResNetBlock(nn.Module):
         self.conv_block = nn.Sequential(
             nn.BatchNorm2d(in_channels),
             #nn.GroupNorm(num_groups=in_channels//8,num_channels=in_channels),
-            nn.ReLU(),
+            nn.Dropout2d(0.05, inplace=True),
+            nn.ReLU(inplace=True),
             nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=padding),
             nn.BatchNorm2d(out_channels),
             #nn.GroupNorm(num_groups=out_channels//8,num_channels=out_channels),
-            nn.ReLU(),
+            nn.Dropout2d(0.10, inplace=True),
+            nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1),
         )
 
