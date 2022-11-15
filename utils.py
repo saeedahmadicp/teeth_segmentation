@@ -135,7 +135,7 @@ def train_fn(train_dl, model, optimizer, loss_fn, device):
     return mean_loss/(len(train_dl))
 
 
-def Fit(model, train_dl, validation_dl, loss_fn, optimizer, epochs, device):
+def Fit(model, train_dl, validation_dl, loss_fn, optimizer, epochs, device, writer):
     train_accuracies = []
     validation_accuracies = []
     train_dice_scores = []
@@ -172,7 +172,17 @@ def Fit(model, train_dl, validation_dl, loss_fn, optimizer, epochs, device):
             device=device,
             threshold=0.5,
         )
-        
+
+        validation_loss_ = validation_loss(model, validation_dl, loss_fn, device)
+
+        writer.add_scalar('Training Loss', train_loss, epoch)
+        writer.add_scalar('Validation Loss', validation_loss_, epoch)
+        writer.add_scalar('Training Accuracy', train_accuracy, epoch)
+        writer.add_scalar('Validation Accuracy', validation_accuracy, epoch)
+        writer.add_scalar('Training Dice Score', train_ds, epoch)
+        writer.add_scalar('Validation Dice Score', validation_ds, epoch)
+
+
         train_accuracies.append(train_accuracy)
         validation_accuracies.append(validation_accuracy)
 
@@ -180,7 +190,7 @@ def Fit(model, train_dl, validation_dl, loss_fn, optimizer, epochs, device):
         validation_dice_scores.append(validation_ds)
 
         train_losses.append(train_loss)
-        validation_losses.append(validation_loss(model, validation_dl, loss_fn, device))
+        validation_losses.append(validation_loss_)
 
     history = {
         'model': model,

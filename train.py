@@ -3,14 +3,16 @@ from torchvision import transforms as t
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
+from torch.utils.tensorboard import SummaryWriter
 
 
 from utils import get_loaders, Fit, check_accuracy, plot_history
-from model import UNET, Attention_UNET, Inception_UNET, Inception_Attention_UNET, ResUNET, ResUNETPlus, ResUNET_with_GN, ResUNET_with_CBAM
+from model import UNET, Attention_UNET, Inception_UNET, Inception_Attention_UNET, ResUNET, ResUNETPlus, ResUNET_with_GN, ResUNET_with_CBAM, UNET_GN
 from dataset import split_data, split_category
 #from focal_loss import FocalLoss
 from lookahead import Lookahead
 from dense_unet import DenseUNet
+
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
@@ -18,7 +20,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 LEARNING_RATE = 1e-4
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 4
-NUM_EPOCHS = 30
+NUM_EPOCHS = 20
 IMAGE_HEIGHT = 256 # 1127 originally
 IMAGE_WIDTH = 256 # 1991 originally
 TRAIN_IMG_DIR = "./train-val/train2018/"
@@ -78,12 +80,13 @@ def main():
     #loss_fn = FocalLoss()
 
     
-    print("UNET")
-    model = DenseUNet()#in_channels=3, out_channels=1)
+    print("Residual UNET")
+    writer = SummaryWriter("runs/AttentionUnet")
+    model = Attention_UNET(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
     #lookahead = Lookahead(optimizer, k=3, alpha=0.6) 
-    history = Fit(model=model,train_dl=train_dl, validation_dl=validation_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE)
+    history = Fit(model=model,train_dl=train_dl, validation_dl=validation_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE, writer=writer)
     test_accuracy, test_dicescore = check_accuracy(test_dl, model, device=DEVICE, threshold=0.5)
 
     print("\n\ntest_accuracy: ", test_accuracy)

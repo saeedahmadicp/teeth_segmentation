@@ -63,8 +63,8 @@ def split_data(category_images, category_masks, test_train_ratio=0.7, train_vali
     test_images, test_labels = [], []
 
     for cat_images, cat_masks in zip(category_images, category_masks):
-        train_valid_images, test_images_, train_valid_labels, test_labels_ = train_test_split(cat_images, cat_masks, test_size=test_train_ratio, shuffle=True)
-        train_images_, valid_images_, train_labels_, valid_labels_ = train_test_split(train_valid_images, train_valid_labels, train_size=train_valid_ratio, shuffle=True)
+        train_valid_images, test_images_, train_valid_labels, test_labels_ = train_test_split(cat_images, cat_masks, test_size=test_train_ratio, shuffle=True, random_state=15)
+        train_images_, valid_images_, train_labels_, valid_labels_ = train_test_split(train_valid_images, train_valid_labels, train_size=train_valid_ratio, shuffle=True,random_state=30)
 
         train_images.extend(train_images_)
         train_labels.extend(train_labels_)

@@ -11,11 +11,13 @@ class DoubleConv(nn.Module):
             #first convolution
             nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(out_channels),
+            nn.Dropout2d(0.05, inplace=True),
             nn.ReLU(inplace=True),
             
             #2nd convolution
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(out_channels),
+            nn.Dropout2d(0.10, inplace=True),
             nn.ReLU(inplace=True),
             )
         
@@ -23,6 +25,25 @@ class DoubleConv(nn.Module):
     def forward(self, x):
         return self.conv(x)
 
+class DoubleConv_GN(nn.Module):
+    
+    def __init__(self, in_channels, out_channels):
+        super(DoubleConv_GN, self).__init__()
+        self.conv = nn.Sequential(
+            #first convolution
+            nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.GroupNorm(out_channels//4, out_channels),
+            nn.ReLU(inplace=True),
+            
+            #2nd convolution
+            nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.GroupNorm(out_channels//4, out_channels),
+            nn.ReLU(inplace=True),
+            )
+        
+        
+    def forward(self, x):
+        return self.conv(x)
 
 
 class Attention_block(nn.Module):
@@ -108,7 +129,7 @@ class InceptionBlock(nn.Module):
         concat = [self.double_conv1(x), self.double_conv2(x), self.double_conv3(x), self.double_conv4(x)]
         output = torch.cat(concat, dim=1)
 
-        return output#self.upConv(output)
+        return output #self.upConv(output)
 
 
 class ResNetBlock(nn.Module):
