@@ -11,13 +11,13 @@ class DoubleConv(nn.Module):
             #first convolution
             nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(out_channels),
-            nn.Dropout2d(0.05, inplace=True),
+            #nn.Dropout2d(0.05, inplace=True),
             nn.ReLU(inplace=True),
             
             #2nd convolution
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
             nn.BatchNorm2d(out_channels),
-            nn.Dropout2d(0.10, inplace=True),
+            #nn.Dropout2d(0.10, inplace=True),
             nn.ReLU(inplace=True),
             )
         
@@ -32,12 +32,12 @@ class DoubleConv_GN(nn.Module):
         self.conv = nn.Sequential(
             #first convolution
             nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
-            nn.GroupNorm(out_channels//4, out_channels),
+            nn.GroupNorm(out_channels//8, out_channels),
             nn.ReLU(inplace=True),
             
             #2nd convolution
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False),
-            nn.GroupNorm(out_channels//4, out_channels),
+            nn.GroupNorm(out_channels//8, out_channels),
             nn.ReLU(inplace=True),
             )
         
@@ -139,12 +139,12 @@ class ResNetBlock(nn.Module):
         self.conv_block = nn.Sequential(
             nn.BatchNorm2d(in_channels),
             #nn.GroupNorm(num_groups=in_channels//8,num_channels=in_channels),
-            nn.Dropout2d(0.05, inplace=True),
+            #nn.Dropout2d(0.05, inplace=True),
             nn.ReLU(inplace=True),
             nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=padding),
             nn.BatchNorm2d(out_channels),
             #nn.GroupNorm(num_groups=out_channels//8,num_channels=out_channels),
-            nn.Dropout2d(0.10, inplace=True),
+            #nn.Dropout2d(0.10, inplace=True),
             nn.ReLU(inplace=True),
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1),
         )

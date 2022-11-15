@@ -5,6 +5,7 @@ from torchviz import make_dot
 
 from modules import DoubleConv, Attention_block, InceptionBlock, ResNetBlock, DoubleConv_GN
 from cbam import CBAM
+from custom_attention import SpatialAttention
 
 
 class UNET(nn.Module):
@@ -202,6 +203,84 @@ class Attention_UNET(nn.Module):
 
         return self.final_conv(x)
 
+
+class CustomAttention_UNET(nn.Module):
+    def __init__(
+            self, in_channels=3, out_channels=1, features=[64, 128, 256, 512],
+    ):
+        super(CustomAttention_UNET, self).__init__()
+        #module list for encoder layers
+        self.downs = nn.ModuleList()
+        #max pooling
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        #module list for the decoder layers
+        self.ups = nn.ModuleList()
+
+         # Down part of UNET
+        for feature in features:
+            self.downs.append(DoubleConv(in_channels, feature))
+            in_channels = feature
+
+        # Up part of UNET
+        for feature in reversed(features):
+            ### up convolution
+            self.ups.append(
+                nn.ConvTranspose2d(
+                    feature*2, feature, kernel_size=2, stride=2,
+                )
+            )
+
+            ### attention module
+            self.ups.append(
+                SpatialAttention(in_channel=feature)
+            )
+
+             ### attention module
+            self.ups.append(
+                Attention_block(F_g=feature, F_l=feature, F_int=feature//2)
+            )
+
+            ### double convolution
+            self.ups.append(DoubleConv(feature*2, feature))
+
+        self.bottleneck = DoubleConv(features[-1], features[-1]*2)
+        self.final_conv = nn.Conv2d(features[0], out_channels, kernel_size=1)
+
+    def forward(self, x):
+        skip_connections = []
+
+        for down in self.downs:
+            x = down(x)
+            skip_connections.append(x)
+            x = self.pool(x)
+
+        x = self.bottleneck(x)
+        #reversing the list of the skip connections
+        skip_connections = skip_connections[::-1]
+
+        for idx in range(0, len(self.ups), 4):
+            x = self.ups[idx](x)
+            skip_connection = skip_connections[idx//4]
+            
+            #if the resolution of the input image is not completely devisible, then it will skip the reminder
+            # and the resolution will not be equal in this case, so we are resizing it incase in they are not equal
+            if x.shape != skip_connection.shape:
+                x = TF.resize(x, size=skip_connection.shape[2:])
+
+
+            #Attention module 
+            spatial_output = self.ups[idx+1](g= x , x=skip_connection)
+
+            #attention unet 
+            Attention_output = self.ups[idx+2](g= x , x=spatial_output)
+
+            #concatenating the skip connections with x
+            concat_skip = torch.cat((Attention_output, x), dim=1)
+
+            #passing the concatenated ouptut, to the double convolutional layers
+            x = self.ups[idx+3](concat_skip)
+
+        return self.final_conv(x)
 
 
 class Inception_UNET(nn.Module):

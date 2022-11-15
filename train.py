@@ -7,7 +7,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 from utils import get_loaders, Fit, check_accuracy, plot_history
-from model import UNET, Attention_UNET, Inception_UNET, Inception_Attention_UNET, ResUNET, ResUNETPlus, ResUNET_with_GN, ResUNET_with_CBAM, UNET_GN
+from model import UNET, Attention_UNET, Inception_UNET, Inception_Attention_UNET, ResUNET, ResUNETPlus, ResUNET_with_GN, ResUNET_with_CBAM, UNET_GN, CustomAttention_UNET
 from dataset import split_data, split_category
 #from focal_loss import FocalLoss
 from lookahead import Lookahead
@@ -19,8 +19,8 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 LEARNING_RATE = 1e-4
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
-BATCH_SIZE = 4
-NUM_EPOCHS = 20
+BATCH_SIZE = 16
+NUM_EPOCHS = 30
 IMAGE_HEIGHT = 256 # 1127 originally
 IMAGE_WIDTH = 256 # 1991 originally
 TRAIN_IMG_DIR = "./train-val/train2018/"
@@ -80,9 +80,9 @@ def main():
     #loss_fn = FocalLoss()
 
     
-    print("UNET_dropout")
-    writer = SummaryWriter("runs/UNET_dropout")
-    model = UNET(in_channels=3, out_channels=1)
+    print("CustomAttention_UNET9")
+    writer = SummaryWriter("runs/CustomAttention_UNET9")
+    model = CustomAttention_UNET(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
     #lookahead = Lookahead(optimizer, k=3, alpha=0.6) 
