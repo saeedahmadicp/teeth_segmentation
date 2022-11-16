@@ -80,8 +80,8 @@ def main():
     #loss_fn = FocalLoss()
 
     
-    print("CustomAttention_UNET9")
-    writer = SummaryWriter("runs/CustomAttention_UNET9")
+    print("CustomAttention_UNET10")
+    writer = SummaryWriter("runs/CustomAttention_UNET10")
     model = CustomAttention_UNET(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
