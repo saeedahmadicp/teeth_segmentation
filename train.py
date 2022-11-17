@@ -17,7 +17,7 @@ from dense_unet import DenseUNet
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
-LEARNING_RATE = 1e-5
+LEARNING_RATE = 1e-4
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
 BATCH_SIZE = 2
 NUM_EPOCHS = 15
