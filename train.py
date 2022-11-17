@@ -81,8 +81,8 @@ def main():
     #loss_fn = FocalLoss()
 
     
-    print("UNET_Plus3")
-    writer = SummaryWriter("runs/UNET_Plus3")
+    print("UNET_Plus")
+    writer = SummaryWriter("runs/UNET_Plus")
     model = UNET_Plus(3, 1) #in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)

@@ -131,7 +131,7 @@ def train_fn(train_dl, model, optimizer, loss_fn, device):
         loss1 = loss_fn(predictions[0], targets)
         loss2 = loss_fn(predictions[1], targets)
         loss3 = loss_fn(predictions[2], targets)
-        loss = (0.8*loss1 + 0.1*loss2 + 0.1*loss3)
+        loss = (loss1 + loss2 + loss3)/3.0
 
         #loss = loss_fn(predictions, targets)
         # backward
