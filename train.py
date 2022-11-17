@@ -78,12 +78,12 @@ def main():
     )
 
     
-    loss_fn = nn.BCEWithLogitsLoss()
-    #loss_fn = FocalLoss()
+    #loss_fn = nn.BCEWithLogitsLoss()
+    loss_fn = DiceBCELossLogitsLoss()
 
     
-    print("UNET_Plus")
-    writer = SummaryWriter("runs/UNET_Plus")
+    print("UNET_Plus_DL")
+    writer = SummaryWriter("runs/UNET_Plus_DL")
     model = UNET_Plus(3, 1) #in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
