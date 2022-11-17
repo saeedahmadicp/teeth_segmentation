@@ -119,7 +119,7 @@ class outconv(nn.Module):
     def forward(self, x):
         x = self.upsample(x)
         x = self.conv(x)
-        x = F.sigmoid(x)
+        #x = F.sigmoid(x)
         return x
 
 
@@ -191,7 +191,8 @@ class Unet_2D(nn.Module):
         self.outconv = outconv(cc, n_classes)
         self.mode = mode
 
-    def forward(self, x):
+    def forward(self, x, mode='train'):
+        self.mode = mode
         if self.mode == 'train':  # use the whole model when training
             x1 = self.inconv(x)
             x2 = self.down1(x1)

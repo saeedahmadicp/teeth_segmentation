@@ -80,7 +80,7 @@ def check_accuracy(loader, model, device="cuda", threshold=0.5):
             x = x.to(device)
             y = y.to(device) #.unsqueeze(1)
                 
-            preds = torch.sigmoid(model(x))
+            preds = torch.sigmoid(model(x,mode='test'))
             preds = (preds > threshold).float()
             num_correct += (preds == y).sum()
             num_pixels += torch.numel(preds)
@@ -106,7 +106,7 @@ def validation_loss(model, validation_dl, loss_fn, device):
     for x, y in validation_dl:
         x, y = x.to(device), y.to(device)
 
-        preds = model(x)
+        preds = model(x, mode='test')
         loss = loss_fn(preds, y)
 
         total_loss += loss.detach().cpu().item()
@@ -126,7 +126,14 @@ def train_fn(train_dl, model, optimizer, loss_fn, device):
         # forward   
         predictions = model(data)
         #print("Prediction shape: ", predictions.shape)
-        loss = loss_fn(predictions, targets)
+        
+        ### Only for UNET plus
+        loss1 = loss_fn(predictions[0], targets)
+        loss2 = loss_fn(predictions[1], targets)
+        loss3 = loss_fn(predictions[2], targets)
+        loss = (0.8*loss1 + 0.1*loss2 + 0.1*loss3)
+
+        #loss = loss_fn(predictions, targets)
         # backward
         loss.backward()
         optimizer.step()
