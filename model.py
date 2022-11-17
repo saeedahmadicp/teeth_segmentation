@@ -272,13 +272,13 @@ class CustomAttention_UNET(nn.Module):
             spatial_output = self.ups[idx+1](g= x , x=skip_connection)
 
             #attention unet 
-            Attention_output = self.ups[idx+2](g= x ,  x=skip_connection)#x=spatial_output)
+           # Attention_output = self.ups[idx+2](g= x ,  x=skip_connection)#x=spatial_output)
 
             ###
-            combined_attention = spatial_output * Attention_output
+            #combined_attention = spatial_output * Attention_output
 
             #concatenating the skip connections with x
-            concat_skip = torch.cat((combined_attention, x), dim=1)
+            concat_skip = torch.cat((spatial_output, x), dim=1)
 
             
 

@@ -59,10 +59,12 @@ class _DenseUNetDecoder(DenseNet):
         
         if upsample:
             self.features.add_module('upsample0', nn.Upsample(scale_factor=4, mode='bilinear'))
-        self.features.add_module('norm0', nn.BatchNorm2d(num_input_features))
+       # self.features.add_module('norm0', nn.BatchNorm2d(num_input_features))
+        self.add_module("group_norm0", nn.GroupNorm(num_groups= (num_input_features)//4,num_channels=num_input_features))
         self.features.add_module('relu0', nn.ReLU(inplace=True))
         self.features.add_module('conv0', nn.Conv2d(num_input_features, num_init_features, kernel_size=1, stride=1, bias=False))
-        self.features.add_module('norm1', nn.BatchNorm2d(num_init_features))
+        #self.features.add_module('norm1', nn.BatchNorm2d(num_init_features))
+        self.add_module("group_norm2", nn.GroupNorm(num_groups= (num_init_features)//8,num_channels=num_init_features))
 
     def forward(self, x):
         return self.features(x)
@@ -81,14 +83,16 @@ class _TransitionUp(nn.Sequential):
     def __init__(self, num_input_features, num_output_features, skip_connections):
         super(_TransitionUp, self).__init__()
         
-        self.add_module('norm1', nn.BatchNorm2d(num_input_features))
+        #self.add_module('norm1', nn.BatchNorm2d(num_input_features))
+        self.add_module("group_norm1", nn.GroupNorm(num_groups= (num_input_features)//4,num_channels=num_input_features))
         self.add_module('relu1', nn.ReLU(inplace=True))
         self.add_module('conv1', nn.Conv2d(num_input_features, num_output_features * 2,
                                               kernel_size=1, stride=1, bias=False))
         
         self.add_module('upsample', nn.Upsample(scale_factor=2, mode='bilinear'))
         self.add_module('cat', _Concatenate(skip_connections))
-        self.add_module('norm2', nn.BatchNorm2d(num_output_features * 4))
+        #self.add_module('norm2', nn.BatchNorm2d(num_output_features * 4))
+        self.add_module("group_norm2", nn.GroupNorm(num_groups= (num_output_features * 4)//8,num_channels=num_output_features * 4))
         self.add_module('relu2', nn.ReLU(inplace=True))
         self.add_module('conv2', nn.Conv2d(num_output_features * 4, num_output_features,
                                           kernel_size=1, stride=1, bias=False))

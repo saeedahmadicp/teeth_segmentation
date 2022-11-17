@@ -13,26 +13,30 @@ class spatial_block(nn.Module):
         super(spatial_block, self).__init__()
 
         self.conv1 = nn.Sequential(
+            nn.GroupNorm(num_groups=in_channels//8,num_channels=in_channels),
             nn.Conv2d(in_channels, out_channels,  kernel_size=7, stride=1, padding=3, dilation=1),
-            nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True)
+            #nn.BatchNorm2d(out_channels),
+            #nn.ReLU(inplace=True)
         )
         self.conv2 = nn.Sequential(
+            nn.GroupNorm(num_groups=in_channels//8,num_channels=in_channels),
             nn.Conv2d(in_channels, out_channels,  kernel_size=5, stride=1, padding=2, dilation=1),
-            nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True)
+            #nn.BatchNorm2d(out_channels),
+            #nn.ReLU(inplace=True)
         )
 
         self.conv3 = nn.Sequential(
+            nn.GroupNorm(num_groups=in_channels//8,num_channels=in_channels),
             nn.Conv2d(in_channels, out_channels,  kernel_size=3, stride=1, padding=1, dilation=1),
-            nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True)
+            #nn.BatchNorm2d(out_channels),
+            #nn.ReLU(inplace=True)
         )
 
         self.conv4 = nn.Sequential(
+            nn.GroupNorm(num_groups=in_channels//8,num_channels=in_channels),
             nn.Conv2d(in_channels, out_channels,  kernel_size=1, stride=1, padding=0, dilation=1),
-            nn.BatchNorm2d(out_channels),
-            nn.ReLU(inplace=True)
+            #nn.BatchNorm2d(out_channels),
+            #nn.ReLU(inplace=True)
         )
 
     def forward(self, x):
@@ -49,8 +53,8 @@ class SpatialAttention(nn.Module):
         self.x_block = spatial_block(in_channels=in_channel, out_channels=1)
         self.g_block = spatial_block(in_channels=in_channel, out_channels=1)
 
-        self.scale_x = nn.Conv2d(6, 1,kernel_size=1, stride=1, padding=0, dilation=2)
-        self.scale_g = nn.Conv2d(6, 1,kernel_size=1, stride=1, padding=0, dilation=2)
+        self.scale_x = nn.Conv2d(6, 1,kernel_size=1, stride=1, padding=0, dilation=4)
+        self.scale_g = nn.Conv2d(6, 1,kernel_size=1, stride=1, padding=0, dilation=4)
    
        
     def forward(self, x, g):

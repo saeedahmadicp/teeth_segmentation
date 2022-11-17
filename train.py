@@ -17,10 +17,10 @@ from dense_unet import DenseUNet
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
-LEARNING_RATE = 1e-4
+LEARNING_RATE = 1e-5
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
-BATCH_SIZE = 16
-NUM_EPOCHS = 30
+BATCH_SIZE = 2
+NUM_EPOCHS = 15
 IMAGE_HEIGHT = 256 # 1127 originally
 IMAGE_WIDTH = 256 # 1991 originally
 TRAIN_IMG_DIR = "./train-val/train2018/"
@@ -80,9 +80,9 @@ def main():
     #loss_fn = FocalLoss()
 
     
-    print("CustomAttention_UNET10")
-    writer = SummaryWriter("runs/CustomAttention_UNET10")
-    model = CustomAttention_UNET(in_channels=3, out_channels=1)
+    print("denseUNET-15")
+    writer = SummaryWriter("runs/denseUNET-15")
+    model = DenseUNet()#in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
     #lookahead = Lookahead(optimizer, k=3, alpha=0.6) 
