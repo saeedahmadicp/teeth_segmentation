@@ -218,7 +218,7 @@ class CustomAttention_UNET(nn.Module):
 
          # Down part of UNET
         for feature in features:
-            self.downs.append(DoubleConv(in_channels, feature))
+            self.downs.append(DoubleConv_GN(in_channels, feature))
             in_channels = feature
 
         # Up part of UNET
@@ -241,9 +241,9 @@ class CustomAttention_UNET(nn.Module):
             )
 
             ### double convolution
-            self.ups.append(DoubleConv(feature*2, feature))
+            self.ups.append(DoubleConv_GN(feature*2, feature))
 
-        self.bottleneck = DoubleConv(features[-1], features[-1]*2)
+        self.bottleneck = DoubleConv_GN(features[-1], features[-1]*2)
         self.final_conv = nn.Conv2d(features[0], out_channels, kernel_size=1)
 
     def forward(self, x):

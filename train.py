@@ -21,10 +21,10 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 LEARNING_RATE = 1e-4
 DEVICE = "cuda:0" if torch.cuda.is_available() else "cpu"
-BATCH_SIZE = 16
+BATCH_SIZE = 2
 NUM_EPOCHS = 30
-IMAGE_HEIGHT = 256 # 1127 originally
-IMAGE_WIDTH = 256 # 1991 originally
+IMAGE_HEIGHT = 512 #256 # 1127 originally
+IMAGE_WIDTH = 768 #256 # 1991 originally
 TRAIN_IMG_DIR = "./train-val/train2018/"
 TRAIN_MASK_DIR = "./train-val/masks/"
 TEST_IMG_DIR = "./test/test2018/" 
@@ -82,9 +82,9 @@ def main():
     loss_fn = DiceBCELossLogitsLoss()
 
     
-    print("UNET_Plus_DL")
-    writer = SummaryWriter("runs/UNET_Plus_DL")
-    model = UNET_Plus(3, 1) #in_channels=3, out_channels=1)
+    print("CustomAttentionwithGN_DL")
+    writer = SummaryWriter("runs/CustomAttentionwithGN_DL")
+    model = CustomAttention_UNET(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
     optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
     #lookahead = Lookahead(optimizer, k=3, alpha=0.6) 
