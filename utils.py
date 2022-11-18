@@ -59,6 +59,41 @@ def get_loaders(
     
     return train_dl, validation_dl, test_dl
 
+
+def evaluate(preds, targets):
+    """ 
+      Returns specificty, precision, recall and f1_score   
+
+    """
+
+    confusion_vector = preds / targets
+    # Element-wise division of the 2 tensors returns a new tensor which holds a
+    # unique value for each case:
+    #   1     where prediction and truth are 1 (True Positive)
+    #   inf   where prediction is 1 and truth is 0 (False Positive)
+    #   nan   where prediction and truth are 0 (True Negative)
+    #   0     where prediction is 0 and truth is 1 (False Negative)
+
+    true_positives = torch.sum(confusion_vector == 1).item()
+    false_positives = torch.sum(confusion_vector == float('inf')).item()
+    true_negatives = torch.sum(torch.isnan(confusion_vector)).item()
+    false_negatives = torch.sum(confusion_vector == 0).item()
+
+    ### precision, recall, f1_score and specificity
+    specificity = true_negatives / (true_negatives + false_positives)
+    precision = true_positives / (true_positives + false_positives)
+    recall = true_positives / (true_positives + false_negatives)
+    f1_score = (2.0 * (recall*precision)) / (recall + precision)
+
+    dict = {
+        'specificity': specificity,
+        'precision': precision,
+        'recall': recall,
+        'f1_score': f1_score
+    }
+
+    return dict
+
 def dice_coeff(pred, target):
         smooth = 1.
         num = pred.size(0)
@@ -68,11 +103,13 @@ def dice_coeff(pred, target):
 
         return (2. * intersection + smooth) / (m1.sum() + m2.sum() + smooth)
 
-def check_accuracy(loader, model, device="cuda", threshold=0.5):
+def check_accuracy(loader, model, device="cuda", threshold=0.5, test=False):
     num_correct = 0
     num_pixels = 0
     dice_score = 0
     model.eval()
+    if test:
+        f1_score, precision, recall, specificity = 0.0, 0.0 , 0.0 , 0.0
 
     with torch.no_grad():
         for _, (x, y) in enumerate(loader):
@@ -89,19 +126,44 @@ def check_accuracy(loader, model, device="cuda", threshold=0.5):
             num_correct += (preds == y).sum()
             num_pixels += torch.numel(preds)
             dice_score += dice_coeff(preds, y)
-            
+
+            if test:
+                temp_dict = evaluate(preds, y)
+                f1_score += temp_dict['f1_score']
+                precision += temp_dict['precision']
+                recall += temp_dict['recall']
+                specificity += temp_dict['specificity']
+
+
+
+        
+
         accuracy = num_correct/num_pixels*100
         dice_score = (dice_score/(len(loader)))*100
-
-        print(
-             f"Got {num_correct}/{num_pixels} with acc {accuracy:.2f}"
-            )
-        print(f"Dice score: {dice_score :.2f}")
-
-
+        
         accuracy, dice_score = accuracy.detach().cpu().item() , dice_score.detach().cpu().item() 
 
-    return accuracy, dice_score
+    if test: 
+        f1_score = (f1_score/(len(loader)))*100
+        precision = (precision/(len(loader)))*100
+        recall = (recall/(len(loader)))*100
+        specificity = (specificity/(len(loader)))*100
+
+        dict = {
+                'specificity': specificity,
+                'precision': precision,
+                'recall': recall,
+                'f1_score': f1_score,
+                'accuracy':accuracy,
+                'dice_score': dice_score,
+                }
+        return dict
+
+    else:
+        print(f"Got {num_correct}/{num_pixels} with acc {accuracy:.2f}" )
+        print(f"Dice score: {dice_score :.2f}")
+    
+        return accuracy, dice_score
 
 
 def validation_loss(model, validation_dl, loss_fn, device):

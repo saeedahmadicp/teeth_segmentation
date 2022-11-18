@@ -29,7 +29,7 @@ TRAIN_IMG_DIR = "./train-val/train2018/"
 TRAIN_MASK_DIR = "./train-val/masks/"
 TEST_IMG_DIR = "./test/test2018/" 
 TEST_MASK_DIR = "./test/mask/"
-
+MODEL_PATH = "./saved_models/customSpatialAttentionUnet2.pth"
 
 
 
@@ -83,19 +83,28 @@ def main():
 
     
     print("CustomAttentionwithGN_DL")
-    writer = SummaryWriter("runs/CustomAttentionwithGN_DL")
+   # writer = SummaryWriter("runs/CustomAttentionwithGN_DL3")  
     model = CustomAttention_UNET(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
-    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
+   # optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
     #lookahead = Lookahead(optimizer, k=3, alpha=0.6) 
-    history = Fit(model=model,train_dl=train_dl, validation_dl=validation_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE, writer=writer)
-    test_accuracy, test_dicescore = check_accuracy(test_dl, model, device=DEVICE, threshold=0.5)
+    #history = Fit(model=model,train_dl=train_dl, validation_dl=validation_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE, writer=writer)
 
-    print("\n\ntest_accuracy: ", test_accuracy)
-    print("test dice score: ", test_dicescore)
+    #torch.save(model.state_dict(),MODEL_PATH )
+    model.load_state_dict(torch.load(MODEL_PATH))
+
+    dict = check_accuracy(test_dl, model, device=DEVICE, threshold=0.85, test=True)
+
+    print(f"\n\ntest_accuracy:  {dict['accuracy']:.2f}")
+    print(f"test dice score:  {dict['dice_score']:.2f}")
+    print(f"test precision:  {dict['precision']:.2f}")
+    print(f"test recall:  {dict['recall']:.2f}")
+    print(f"test specificity:  {dict['specificity']:.2f}")
+    print(f"test f1_score:  {dict['f1_score']:.2f}")
+
     
     ### ploting graphs
-    plot_history(history)
+   # plot_history(history)
 
     print("Completed")
    
@@ -103,3 +112,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+thresholds = np.arange(0.1,1,0.01)
+
