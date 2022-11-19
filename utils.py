@@ -3,7 +3,7 @@ from dataset import Teeth_Dataset
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 import numpy as np
-
+from torchvision import transforms as t
 
 def get_loaders(
     images_dir,
@@ -172,7 +172,7 @@ def validation_loss(model, validation_dl, loss_fn, device):
     for x, y in validation_dl:
         x, y = x.to(device), y.to(device)
 
-        ## for unet plus plus 
+
         preds = model(x)
         loss = loss_fn(preds, y)
 
@@ -192,13 +192,6 @@ def train_fn(train_dl, model, optimizer, loss_fn, device):
         optimizer.zero_grad()
         # forward   
         predictions = model(data)
-        #print("Prediction shape: ", predictions.shape)
-        
-        ### Only for UNET plus plus
-        #loss = 0.0
-        #for output in predictions:
-            #loss += loss_fn(output, targets)
-        #loss /= (len(predictions))
 
         loss = loss_fn(predictions, targets)
         # backward
@@ -323,3 +316,39 @@ def plot_history(history):
             y_label= "dice scores",
             title= "Iteration vs dice scores",
     )
+
+
+def visualize_random_image(model, loader, device, threshold, width, height):
+
+    rand_batch = torch.randint(0, len(loader), (1,)).item()
+    
+    for batch, (x, y) in enumerate(loader): 
+
+        if batch == rand_batch:
+            x = x.to(device)
+            y = y.to(device) #.unsqueeze(1)
+
+            preds = torch.sigmoid((model(x)))
+
+            preds = (preds > threshold).float() * 255.0
+            y = y * 255.0
+
+
+            preds = preds[0].view(height, width)
+            y = y[0].view(height, width)
+
+            y, preds = y.detach().cpu(), preds.detach().cpu()
+
+            
+            figure = plt.figure(figsize=(4,4))
+            plt.title(f'test image plot batch size {rand_batch}, first sample. (orignal, predictions)')
+            figure.add_subplot(1,2, 1)
+            plt.imshow(y)
+            figure.add_subplot(1,2, 2)
+            plt.imshow(preds)
+
+            plt.savefig(f'batch_{rand_batch}_sample_0 (orignal, predictions).png')
+            plt.show()
+
+            
+

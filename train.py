@@ -6,7 +6,7 @@ import numpy as np
 from torch.utils.tensorboard import SummaryWriter
 
 
-from utils import get_loaders, Fit, check_accuracy, plot_history
+from utils import get_loaders, Fit, check_accuracy, plot_history, visualize_random_image
 from model import UNET, Attention_UNET, Inception_UNET, Inception_Attention_UNET, ResUNET, ResUNETPlus, ResUNET_with_GN, ResUNET_with_CBAM, UNET_GN, CustomAttention_UNET
 from unetplusplus import  NestedUNet as UNET_Plus
 from dataset import split_data, split_category
@@ -92,6 +92,8 @@ def main():
 
     #torch.save(model.state_dict(),MODEL_PATH )
     model.load_state_dict(torch.load(MODEL_PATH))
+
+    visualize_random_image(model=model, loader=test_dl, device=DEVICE, threshold=0.85, width=IMAGE_WIDTH, height=IMAGE_HEIGHT)
 
     dict = check_accuracy(test_dl, model, device=DEVICE, threshold=0.85, test=True)
 
