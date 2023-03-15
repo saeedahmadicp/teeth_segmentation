@@ -37,7 +37,7 @@ data-directory
 
 ```
 
-Usage
+## Usage
 Before running the code, make sure to modify the config.py file to match your directory structure and preferences.
 
 To train the model, simply run the train.py script:
