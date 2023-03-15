@@ -86,12 +86,12 @@ def main():
    # writer = SummaryWriter("runs/CustomAttentionwithGN_DL3")  
     model = CustomAttention_UNET(in_channels=3, out_channels=1)
     model.to(device=DEVICE)
-   # optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
+    optimizer = optim.Adam(model.parameters(), lr=LEARNING_RATE,)
     #lookahead = Lookahead(optimizer, k=3, alpha=0.6) 
-    #history = Fit(model=model,train_dl=train_dl, validation_dl=validation_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE, writer=writer)
+    history = Fit(model=model,train_dl=train_dl, validation_dl=validation_dl, loss_fn=loss_fn, optimizer=optimizer, epochs=NUM_EPOCHS, device=DEVICE, writer=writer)
 
-    #torch.save(model.state_dict(),MODEL_PATH )
-    model.load_state_dict(torch.load(MODEL_PATH))
+    torch.save(model.state_dict(),MODEL_PATH )
+    #model.load_state_dict(torch.load(MODEL_PATH))
 
     visualize_random_image(model=model, loader=test_dl, device=DEVICE, threshold=0.85, width=IMAGE_WIDTH, height=IMAGE_HEIGHT)
 
@@ -115,5 +115,4 @@ def main():
 if __name__ == "__main__":
     main()
 
-thresholds = np.arange(0.1,1,0.01)
 
