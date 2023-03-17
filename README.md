@@ -52,7 +52,7 @@ python train.py
 
 ## Results for the test data
 
-| UNet Variats | Test Accurary | Test Dice Score |
+| UNet Variants | Test Accurary | Test Dice Score |
 |----------|----------|----------|
 | Base UNet                 |  96.10         |   90.47       |
 | UNet with GN              |  96.71         |   91.53       |
