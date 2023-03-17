@@ -64,7 +64,7 @@ python train.py
 | Dense UNet with GN        |  96.77         |   91.88       |
 | **Spatial Attention UNet2 ${\color{red}\^*}$**  |  **97.32**        |  **93.12**        |
 
-${\color{red}\*}$ increase the resolution from 256\*256 to 768\*512, reduce the batch size from 16 to 2, used Group Normalization and  Custom spatial attention module with base 
+${\color{red}\*}$ increase the resolution from 256\*256 to 768\*512, reduce the batch size from 16 to 2, used Group Normalization and  Custom spatial attention module with base UNet 
 
 
 
