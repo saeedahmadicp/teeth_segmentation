@@ -42,7 +42,7 @@ data-directory
 
 
 ## Usage
-Before running the code, make sure to modify the config.py file to match your directory structure and preferences.
+Before running the code, make sure to modify the train.py file to match your customized settings and model executation.
 
 To train the model, simply run the train.py script:
 
