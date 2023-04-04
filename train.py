@@ -7,13 +7,14 @@ from torch.utils.tensorboard import SummaryWriter
 
 
 from utils import get_loaders, Fit, check_accuracy, plot_history, visualize_random_image
-from model import UNET, Attention_UNET, Inception_UNET, Inception_Attention_UNET, ResUNET, ResUNETPlus, ResUNET_with_GN, ResUNET_with_CBAM, UNET_GN, CustomAttention_UNET
-from unetplusplus import  NestedUNet as UNET_Plus
+from models import UNET, Attention_UNET, Inception_UNET, Inception_Attention_UNET, ResUNET, ResUNETPlus, ResUNET_with_GN, ResUNET_with_CBAM, UNET_GN, CustomAttention_UNET
+from models.unetplusplus import  NestedUNet as UNET_Plus
 from dataset import split_data, split_category
 #from focal_loss import FocalLoss
 from lookahead import Lookahead
-from dense_unet import DenseUNet
-from dice_loss import DiceBCELossLogitsLoss
+from models.dense_unet import DenseUNet
+from losses import DiceBCELossLogitsLoss
+
 
 
 import os
