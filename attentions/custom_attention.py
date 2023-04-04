@@ -1,7 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from modules import Attention_block
+from ..models import Attention_block
+
+__all__ = ['SpatialAttention']
+
 
 class ChannelPool(nn.Module):
     def forward(self, x):

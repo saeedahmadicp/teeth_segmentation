@@ -5,6 +5,11 @@ import torch.nn.functional as F
 from torch import nn
 from collections import OrderedDict
 
+
+
+__all__ = ['DenseUNet']
+
+
 class _DenseUNetEncoder(DenseNet):
     def __init__(self, skip_connections, growth_rate, block_config, num_init_features, bn_size, drop_rate, downsample):
         super(_DenseUNetEncoder, self).__init__(growth_rate, block_config, num_init_features, bn_size, drop_rate)

@@ -3,6 +3,8 @@ import torch.nn.functional as F
 import torch
 
 
+__all__ = ['DiceBCELossLogitsLoss']
+
 class DiceBCELossLogitsLoss(nn.Module):
     def __init__(self, weight=None, size_average=True):
         super(DiceBCELossLogitsLoss, self).__init__()

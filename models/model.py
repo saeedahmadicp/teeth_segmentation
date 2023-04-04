@@ -3,10 +3,12 @@ import torch.nn as nn
 import torchvision.transforms.functional as TF
 from torchviz import make_dot
 
-from modules import DoubleConv, Attention_block, InceptionBlock, ResNetBlock, DoubleConv_GN
-from cbam import CBAM
-from custom_attention import SpatialAttention
+from .modules import DoubleConv, Attention_block, InceptionBlock, ResNetBlock, DoubleConv_GN
+from ..attentions import CBAM
+from ..attentions import SpatialAttention
 
+__all__ = ['UNET', 'UNET_GN', 'Attention_UNET', 'CustomAttention_UNET', 'Inception_UNET', 'Inception_Attention_UNET', 'ResUNET', 'ResUNETPlus',
+           'ResUNET_with_CBAM', 'ResUNET_with_GN']
 
 class UNET(nn.Module):
     def __init__(
