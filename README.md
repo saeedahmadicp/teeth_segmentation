@@ -6,7 +6,7 @@ This repository contains the code for training and evaluating various UNet model
 The data used for this project is not publicly available, but you can request it by contacting me through the email address provided on the profile page. Once you have the data, make sure to update the paths accordingly. 
 
 ## Usage
-Before running the code, make sure to modify the train.py file to match your customized settings and model executation.
+Before running the code, make sure to modify the 'train.py' file and the other relevent files so that you can get the relevent results.
 
 To train the model, simply run the train.py script:
 
