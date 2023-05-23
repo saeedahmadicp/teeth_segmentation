@@ -31,5 +31,5 @@ python train.py
 ${\color{red}\*}$ increase the resolution from 256\*256 to 768\*512, reduce the batch size from 16 to 2, used Group Normalization and  Custom spatial attention module with base UNet 
 
 
-
-
+## ${\color{red}Warning}$
+This project is done solely for the learning purpose and not any standard practices are applied, so I am not claiming any state-of-the-art results. 
