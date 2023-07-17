@@ -1,1 +1,5 @@
-
+authors:
+  - family-names: Ahmad
+    given-names: Saeed
+message: "If you use this software, please cite it using these metadata."
+title: "Teeth Segmentation using PyTorch"
