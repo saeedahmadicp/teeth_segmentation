@@ -32,4 +32,4 @@ ${\color{red}\*}$ increase the resolution from 256\*256 to 768\*512, reduce the 
 
 
 ${\color{red}Note}$
-This project is done solely for learning purposes and not no standard practices are applied, so I am not claiming any state-of-the-art results. 
+This project is solely for learning purposes; no standard practices are applied. Therefore, I am not claiming any state-of-the-art results. 
